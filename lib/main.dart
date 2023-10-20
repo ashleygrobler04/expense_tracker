@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/expense.dart';
+import 'package:expense_tracker/json_manager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,6 +43,7 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
+    _loadData();
     total = calculateTotal();
     expenseTitle.addListener(() {
       setState(() {
@@ -63,7 +65,8 @@ class _HomepageState extends State<Homepage> {
     return t;
   }
 
-  void handleSubmit() {
+  Future<void> handleSubmit() async {
+    List<Map<String, dynamic>>? s = await DataManager.loadFromFile();
     setState(() {
       expenses.add(
         Expense(
@@ -78,8 +81,15 @@ class _HomepageState extends State<Homepage> {
         ),
       );
     });
+    s ??= [];
+    s.add({"title": expenseTitleText, "value": expensePriceText});
     expenseTitle.clear();
     expensePrice.clear();
+    try {
+      await DataManager.saveToFile(s);
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _showDeleteConfirmationDialog(String title) {
@@ -110,10 +120,16 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  void _deleteExpense(String title) {
+  Future<void> _deleteExpense(String title) async {
+    List<Map<String, dynamic>> d = [];
     setState(() {
       expenses.removeWhere((expense) => expense.title == title);
     });
+    d = [];
+    expenses.forEach((element) {
+      d.add({"title": element.title, "value": element.value});
+    });
+    await DataManager.saveToFile(d);
   }
 
   void _showEditDialog(String title) {
@@ -132,11 +148,13 @@ class _HomepageState extends State<Homepage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: const InputDecoration(labelText: "Updated Title"),
+                decoration: const InputDecoration(
+                    labelText: "Updated Title", hintText: "Update title"),
                 controller: updatedTitleController,
               ),
               TextField(
-                decoration: const InputDecoration(labelText: "Updated Value"),
+                decoration: const InputDecoration(
+                    labelText: "Updated Value", hintText: "Update value"),
                 controller: updatedValueController,
               ),
             ],
@@ -162,7 +180,9 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  void _updateExpense(String oldTitle, String newTitle, double newValue) {
+  Future<void> _updateExpense(
+      String oldTitle, String newTitle, double newValue) async {
+    List<Map<String, dynamic>> d1 = [];
     setState(() {
       // Find the index of the expense to update
       int index = expenses.indexWhere((expense) => expense.title == oldTitle);
@@ -180,6 +200,33 @@ class _HomepageState extends State<Homepage> {
         );
       }
     });
+    expenses.forEach((element) {
+      d1.add({"title": element.title, "value": element.value});
+    });
+    await DataManager.saveToFile(d1);
+  }
+
+  Future<void> _loadData() async {
+    List<Map<String, dynamic>>? loadedData = await DataManager.loadFromFile();
+
+    if (loadedData != null) {
+      List<Expense> loadedExpenses = [];
+
+      for (int i = 0; i < loadedData.length; i++) {
+        loadedExpenses.add(Expense(
+          title: loadedData[i]['title'],
+          value: double.parse(loadedData[i]['value'].toString()),
+          onEdit: _showEditDialog,
+          onDelete: _showDeleteConfirmationDialog,
+        ));
+      }
+
+      setState(() {
+        expenses = loadedExpenses;
+      });
+    } else {
+      print('Error: Loaded data is null');
+    }
   }
 
   @override
@@ -202,12 +249,14 @@ class _HomepageState extends State<Homepage> {
                   ),
                 ),
           TextField(
-            decoration: const InputDecoration(labelText: "Enter an expense"),
+            decoration: const InputDecoration(
+                labelText: "Enter an expense", hintText: "Enter expense"),
             controller: expenseTitle,
           ),
           TextField(
             decoration: const InputDecoration(
-                labelText: "Enter the price of this expense"),
+                labelText: "Enter the price of this expense",
+                hintText: "Enter the price of this expense"),
             controller: expensePrice,
           ),
           TextButton(onPressed: handleSubmit, child: const Text("Add expense"))
