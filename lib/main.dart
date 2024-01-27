@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/expense.dart';
 import 'package:expense_tracker/json_manager.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +34,7 @@ class _HomepageState extends State<Homepage> {
   TextEditingController expensePrice = TextEditingController();
   String expenseTitleText = "";
   String expensePriceText = "";
+  int selectedIndex = 0;
 
   @override
   void dispose() {
@@ -124,6 +127,7 @@ class _HomepageState extends State<Homepage> {
     List<Map<String, dynamic>> d = [];
     setState(() {
       expenses.removeWhere((expense) => expense.title == title);
+      selectedIndex = 0;
     });
     d = [];
     expenses.forEach((element) {
@@ -241,11 +245,28 @@ class _HomepageState extends State<Homepage> {
                   child: Text("No expenses"),
                 )
               : Expanded(
-                  child: ListView.builder(
-                    itemCount: expenses.length,
-                    itemBuilder: (context, index) {
-                      return expenses[index];
+                  child: RawKeyboardListener(
+                    focusNode: FocusNode(),
+                    onKey: (RawKeyEvent event) {
+                      if (event.logicalKey == LogicalKeyboardKey.delete) {
+                        _showDeleteConfirmationDialog(
+                            expenses[selectedIndex].title);
+                      }
                     },
+                    child: ListView.builder(
+                      itemCount: expenses.length,
+                      itemBuilder: (context, index) {
+                        return Focus(
+                            onFocusChange: (hasFocus) {
+                              if (hasFocus) {
+                                setState(() {
+                                  selectedIndex = index;
+                                });
+                              }
+                            },
+                            child: expenses[selectedIndex]);
+                      },
+                    ),
                   ),
                 ),
           TextField(
