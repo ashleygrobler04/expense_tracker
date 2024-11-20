@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/expense.dart';
 import 'package:expense_tracker/json_manager.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -245,28 +243,33 @@ class _HomepageState extends State<Homepage> {
                   child: Text("No expenses"),
                 )
               : Expanded(
-                  child: RawKeyboardListener(
-                    focusNode: FocusNode(),
-                    onKey: (RawKeyEvent event) {
-                      if (event.logicalKey == LogicalKeyboardKey.delete) {
-                        _showDeleteConfirmationDialog(
-                            expenses[selectedIndex].title);
-                      }
-                    },
-                    child: ListView.builder(
-                      itemCount: expenses.length,
-                      itemBuilder: (context, index) {
-                        return Focus(
-                            onFocusChange: (hasFocus) {
-                              if (hasFocus) {
-                                setState(() {
-                                  selectedIndex = index;
-                                });
-                              }
+                  child: ListView.builder(
+                    itemCount: expenses.length,
+                    itemBuilder: (context, index) {
+                      return Focus(
+                        onFocusChange: (hasFocus) {
+                          if (hasFocus) {
+                            setState(() {
+                              selectedIndex = index;
+                            });
+                          }
+                        },
+                        child: ListTile(
+                          title: Text(expenses[index].title),
+                          subtitle: Text(expenses[index].value.toString()),
+                          onTap: () {
+                            _showEditDialog(expenses[index].title);
+                          },
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              _showDeleteConfirmationDialog(
+                                  expenses[index].title);
                             },
-                            child: expenses[selectedIndex]);
-                      },
-                    ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
           TextField(
