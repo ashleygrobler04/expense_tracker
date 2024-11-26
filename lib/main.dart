@@ -254,18 +254,25 @@ class _HomepageState extends State<Homepage> {
                             });
                           }
                         },
-                        child: ListTile(
-                          title: Text(expenses[index].title),
-                          subtitle: Text(expenses[index].value.toString()),
-                          onTap: () {
-                            _showEditDialog(expenses[index].title);
-                          },
-                          trailing: IconButton(
-                          icon:   Icon(Icons.delete),
-                            onPressed: () {
-                              _showDeleteConfirmationDialog(
-                                  expenses[index].title);
+                        child: Semantics(
+                          hint: "Click to edit",
+                          label: expenses[index].title,
+                          child: ListTile(
+                            title: Text(expenses[index].title),
+                            subtitle: Text(expenses[index].value.toString()),
+                            onTap: () {
+                              _showEditDialog(expenses[index].title);
                             },
+                            trailing: Semantics(
+                              label: "Delete",
+                              child: IconButton(
+                              icon:   Icon(Icons.delete),
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(
+                                      expenses[index].title);
+                                },
+                              ),
+                            ),
                           ),
                         ),
                       );
