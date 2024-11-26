@@ -261,7 +261,7 @@ class _HomepageState extends State<Homepage> {
                             _showEditDialog(expenses[index].title);
                           },
                           trailing: IconButton(
-                            icon: Icon(Icons.delete),
+                          icon:   Icon(Icons.delete),
                             onPressed: () {
                               _showDeleteConfirmationDialog(
                                   expenses[index].title);

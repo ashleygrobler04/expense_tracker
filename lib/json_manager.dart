@@ -1,43 +1,38 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DataManager {
+  // A cross-platform data manager
   static final JsonEncoder _encoder = JsonEncoder.withIndent("  ");
   static final JsonDecoder _decoder = JsonDecoder();
 
+  // Private constructor to prevent instantiation
   DataManager._();
 
-  static String encodeData(List<Map<String, dynamic>> json) {
-    return _encoder.convert(json);
-  }
-
-  static List<Map<String, dynamic>>? decodeData(String text) {
+  /// Load data from shared preferences
+  static Future<List<Map<String, dynamic>>?> loadFromFile() async {
     try {
-      return List<Map<String, dynamic>>.from(_decoder.convert(text));
+      SharedPreferencesAsync prefs = SharedPreferencesAsync();
+      String? expenses = await prefs.getString("Expenses");
+      if (expenses == null) {
+        return null; // No data found
+      }
+      // Decode the JSON string into a list of maps
+      return List<Map<String, dynamic>>.from(_decoder.convert(expenses));
     } catch (e) {
-      print("Error decoding data: $e");
+      print("Error loading data: $e");
       return null;
     }
   }
 
+  /// Save data to shared preferences
   static Future<void> saveToFile(List<Map<String, dynamic>> data) async {
-    Directory appdata = await getApplicationDocumentsDirectory();
-    final file = File("${appdata.path}/expenses.json");
-    final encodedData = encodeData(data);
-    await file.writeAsString(encodedData);
-    print("Data saved to file: ${appdata.path}");
-  }
-
-  static Future<List<Map<String, dynamic>>?> loadFromFile() async {
     try {
-      Directory appData = await getApplicationDocumentsDirectory();
-      final file = File("${appData.path}/expenses.json");
-      final text = await file.readAsString();
-      return decodeData(text);
+      SharedPreferencesAsync prefs = SharedPreferencesAsync();
+      String jsonData = _encoder.convert(data); // Serialize the data
+      await prefs.setString("Expenses", jsonData);
     } catch (e) {
-      print("Error loading data from file: $e");
-      return null;
+      print("Error saving data: $e");
     }
   }
 }
