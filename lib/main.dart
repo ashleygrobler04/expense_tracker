@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/expense.dart';
 import 'package:expense_tracker/json_manager.dart';
+import 'package:expense_tracker/result.dart';
+import 'package:expense_tracker/show_alert.dart';
 
 void main() {
   runApp(const MyApp());
@@ -66,8 +68,15 @@ class _HomepageState extends State<Homepage> {
     return t;
   }
 
-  Future<void> handleSubmit() async {
+  Future<Result<String, String>> handleSubmit() async {
     List<Map<String, dynamic>>? s = await DataManager.loadFromFile();
+        if (expenseTitleText == "") {
+      return Result.Error("Expense field required.");
+    }
+    else if (expensePriceText == "" || expensePriceText.isEmpty ||  double.tryParse(expensePriceText)==null){
+      return Result.Error("Expense price field required.");
+    }
+
     setState(() {
       expenses.add(
         Expense(
@@ -88,8 +97,9 @@ class _HomepageState extends State<Homepage> {
     expensePrice.clear();
     try {
       await DataManager.saveToFile(s);
+      return Result.Success("Saved");
     } catch (e) {
-      print(e);
+      return Result.Error(e.toString());
     }
   }
 
@@ -226,8 +236,6 @@ class _HomepageState extends State<Homepage> {
       setState(() {
         expenses = loadedExpenses;
       });
-    } else {
-      print('Error: Loaded data is null');
     }
   }
 
@@ -266,7 +274,7 @@ class _HomepageState extends State<Homepage> {
                             trailing: Semantics(
                               label: "Delete",
                               child: IconButton(
-                              icon:   Icon(Icons.delete),
+                                icon: Icon(Icons.delete),
                                 onPressed: () {
                                   _showDeleteConfirmationDialog(
                                       expenses[index].title);
@@ -290,7 +298,14 @@ class _HomepageState extends State<Homepage> {
                 hintText: "Enter the price of this expense"),
             controller: expensePrice,
           ),
-          TextButton(onPressed: handleSubmit, child: const Text("Add expense"))
+          TextButton(
+              onPressed: () async {
+                Result<String, String> res = await handleSubmit();
+                if (!res.isSuccess) {
+                  showAlert(context, "Error", res.error??"Unknown error");
+                }
+              },
+              child: const Text("Add expense"))
         ],
       ),
     );
