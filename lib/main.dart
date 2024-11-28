@@ -3,6 +3,7 @@ import 'package:expense_tracker/expense.dart';
 import 'package:expense_tracker/json_manager.dart';
 import 'package:expense_tracker/result.dart';
 import 'package:expense_tracker/show_alert.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -313,6 +314,8 @@ class _HomepageState extends State<Homepage> {
   }
 
   Future<void> onPriv() async {
-    //1
+    if (! await launchUrl(Uri.parse("https://ashleygrobler04.github.io/files/priv.html"))) {
+      showAlert(context, "Error launching URL", "Could not open url.\nPlease go to https://ashleygrobler04.github.io/files/priv.html to view the privacy policy instead.");
+    }
   }
 }
