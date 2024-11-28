@@ -305,9 +305,14 @@ class _HomepageState extends State<Homepage> {
                   showAlert(context, "Error", res.error??"Unknown error");
                 }
               },
-              child: const Text("Add expense"))
+              child: const Text("Add expense")),
+              TextButton(onPressed: onPriv, child: Text("View Privacy Policy"))
         ],
       ),
     );
+  }
+
+  Future<void> onPriv() async {
+    //1
   }
 }
