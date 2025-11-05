@@ -20,7 +20,7 @@ class DataManager {
       // Decode the JSON string into a list of maps
       return List<Map<String, dynamic>>.from(_decoder.convert(expenses));
     } catch (e) {
-      print("Error loading data: $e");
+      //print("Error loading data: $e");
       return null;
     }
   }
@@ -32,7 +32,7 @@ class DataManager {
       String jsonData = _encoder.convert(data); // Serialize the data
       await prefs.setString("Expenses", jsonData);
     } catch (e) {
-      print("Error saving data: $e");
+      //print("Error saving data: $e");
     }
   }
 }

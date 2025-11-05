@@ -10,7 +10,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
 }
 
 class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+  const Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -139,9 +139,9 @@ class _HomepageState extends State<Homepage> {
       selectedIndex = 0;
     });
     d = [];
-    expenses.forEach((element) {
+    for (var element in expenses) {
       d.add({"title": element.title, "value": element.value});
-    });
+    }
     await DataManager.saveToFile(d);
   }
 
@@ -213,9 +213,9 @@ class _HomepageState extends State<Homepage> {
         );
       }
     });
-    expenses.forEach((element) {
+    for (var element in expenses) {
       d1.add({"title": element.title, "value": element.value});
-    });
+    }
     await DataManager.saveToFile(d1);
   }
 

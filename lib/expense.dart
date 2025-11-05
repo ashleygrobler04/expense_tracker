@@ -7,12 +7,12 @@ class Expense extends StatelessWidget {
   final Function(String) onDelete;
 
   const Expense({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +26,14 @@ class Expense extends StatelessWidget {
             onPressed: () {
               onEdit(title);
             },
+            isSemanticButton: true,
             child: const Text("Edit"),
           ),
           TextButton(
             onPressed: () {
               onDelete(title);
             },
+            isSemanticButton: true,
             child: const Text("Delete"),
           ),
         ],
